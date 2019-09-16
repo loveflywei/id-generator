@@ -1,7 +1,7 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
-import com.jinpei.id.common.algorithm.ChaCha20;
-import com.jinpei.id.common.algorithm.Hmac;
+import com.jiangwei.id.common.algorithm.ChaCha20;
+import com.jiangwei.id.common.algorithm.Hmac;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * 将最长不超过11位的整数对称加密为18位数字字符串，可能会大于Long类型的最大值
- * Created by liuzhaoming on 2018/8/23.
+ * Created by jiangwei on 2018/8/23.
  */
 @Slf4j
 public class NumberHidingGenerator {

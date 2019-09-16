@@ -1,31 +1,30 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Random;
 
-public class NumberHidingGeneratorTest {
+public class TimeNumberHidingGeneratorTest {
 
-    private String alphabetsStr = NumberHidingGenerator.generateAlphabets();
+
+    private TimeNumberHidingGenerator generator = createGenerator();
 
     @Test
     public void generate() {
-        NumberHidingGenerator generator = createGenerator();
         Long originNumber = 99999999999L;
         String hidingStr = generator.generate(originNumber);
-        Assert.assertEquals(18, hidingStr.length());
+        Assert.assertEquals(20, hidingStr.length());
         Assert.assertTrue(isCharValid(hidingStr));
 
         originNumber = 6L;
         hidingStr = generator.generate(originNumber);
-        Assert.assertEquals(18, hidingStr.length());
+        Assert.assertEquals(20, hidingStr.length());
         Assert.assertTrue(isCharValid(hidingStr));
     }
 
     @Test
     public void parse() {
-        NumberHidingGenerator generator = createGenerator();
         Long originNumber = 14825847997L;
         String hidingStr = generator.generate(originNumber);
         Assert.assertEquals(originNumber, generator.parse(hidingStr));
@@ -38,11 +37,10 @@ public class NumberHidingGeneratorTest {
     @Test
     public void batchGenerate() {
         int batchSize = 10000;
-        NumberHidingGenerator generator = createGenerator();
         Long[] originNumbers = generateOriginNumbers(batchSize);
         for (int i = 0; i < batchSize; i++) {
             String hidingString = generator.generate(originNumbers[i]);
-            Assert.assertEquals(18, hidingString.length());
+            Assert.assertEquals(20, hidingString.length());
             Assert.assertTrue(isCharValid(hidingString));
             System.out.println(hidingString);
         }
@@ -51,7 +49,6 @@ public class NumberHidingGeneratorTest {
     @Test
     public void performance() {
         int batchSize = 100000;
-        NumberHidingGenerator generator = createGenerator();
         Long[] originNumbers = generateOriginNumbers(batchSize);
         String[] hidingNumberStrs = new String[batchSize];
         long startTime = System.currentTimeMillis();
@@ -75,9 +72,29 @@ public class NumberHidingGeneratorTest {
         }
     }
 
-    private NumberHidingGenerator createGenerator() {
-        return new NumberHidingGenerator("uyssffj11p23710837e]q222rqrqweqe",
-                "!@#$&**3frwq", 10, alphabetsStr);
+//    @Test
+    public void timeGenerate() {
+        Long originNumber = 14825847997L;
+        String lastStr = null, str = null;
+        int i = 0;
+        while (i++ < 4) {
+            if (null != str) {
+                Assert.assertEquals(originNumber, generator.parse(str));
+            }
+            if (null != lastStr) {
+                Assert.assertNull(generator.parse(lastStr));
+            }
+            lastStr = str;
+            str = generator.generate(originNumber);
+            System.out.println(str);
+            sleep();
+        }
+    }
+
+    private TimeNumberHidingGenerator createGenerator() {
+        String alphabetsStr = "0389215647,1285706349,3724685109,3904682157,7314926805,3648592710,1037856249,6153974028,2978054361,7129680435";
+        return new TimeNumberHidingGenerator("uuhhgfj11p23710837e]q2ytrqrqweqe",
+                "!@#$&123f*&^", 10, alphabetsStr);
     }
 
     /**
@@ -105,5 +122,13 @@ public class NumberHidingGeneratorTest {
         }
 
         return originNumbers;
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(60000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

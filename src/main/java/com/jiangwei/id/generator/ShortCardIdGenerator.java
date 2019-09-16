@@ -1,4 +1,4 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,7 +10,7 @@ import java.util.TimeZone;
 
 /**
  * 13位数字短卡号生成器，一共43 bit
- * Created by liuzhaoming on 2018/7/11.
+ * Created by jiangwei on 2018/7/11.
  */
 @Slf4j
 public class ShortCardIdGenerator {

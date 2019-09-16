@@ -1,11 +1,11 @@
-package com.jinpei.id.common.algorithm;
+package com.jiangwei.id.common.algorithm;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
  * HMac SHA256加密
- * Created by liuzhaoming on 2018/2/1.
+ * Created by jiangwei on 2018/2/1.
  */
 public class Hmac {
 

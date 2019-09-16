@@ -1,11 +1,11 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import java.math.BigInteger;
 import java.util.UUID;
 
 /**
  * 生成不超过22位的短UUID, 排除掉1、l和I，0和o
- * Created by liuzhaoming on 2017/11/23.
+ * Created by jiangwei on 2017/11/23.
  */
 public class ShortUuidGenerator {
     private char[] alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"

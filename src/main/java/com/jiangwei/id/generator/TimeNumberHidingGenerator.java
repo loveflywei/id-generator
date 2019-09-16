@@ -1,7 +1,7 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
-import com.jinpei.id.common.algorithm.ChaCha20;
-import com.jinpei.id.common.algorithm.Hmac;
+import com.jiangwei.id.common.algorithm.ChaCha20;
+import com.jiangwei.id.common.algorithm.Hmac;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -14,7 +14,7 @@ import java.util.Arrays;
  * 加密结果混入了时间信息，有效时间为1分钟，超过有效期加密结果会失效。
  * <p>
  * 本算法支持对不大于12位的正整数（即1000,000,000,000）混合时间信息进行加密，输出固定长度为20位的数字字符串；支持解密。
- * Created by liuzhaoming on 2018/9/12.
+ * Created by jiangwei on 2018/9/12.
  */
 public class TimeNumberHidingGenerator extends NumberHidingGenerator {
 

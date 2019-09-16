@@ -1,4 +1,4 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,12 +7,11 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * 16位数字卡号生成器
- * Created by liuzhaoming on 2017/11/22.
+ * 加入店铺编号的卡号生成器
+ * Created by jiangwei on 2017/11/23.
  */
 @Slf4j
-public class CardIdGenerator {
-
+public class ShopCardIdGenerator {
     /**
      * 时间bit数，时间的单位为秒，30 bit位时间可以表示34年
      */
@@ -31,7 +30,7 @@ public class CardIdGenerator {
     /**
      * 校验bit位数
      */
-    private int validationBits = 8;
+    private int validationBits = 7;
 
     /**
      * 上一次时间戳
@@ -39,14 +38,9 @@ public class CardIdGenerator {
     private long lastStamp = -1L;
 
     /**
-     * 系统编号,默认为1
-     */
-    private long defaultSystem = 1L;
-
-    /**
      * 系统编号左移bit数
      */
-    private int systemOffset = 0;
+    private int shopOffset = 0;
 
     /**
      * 序列
@@ -84,6 +78,11 @@ public class CardIdGenerator {
     private int maxCode = 0;
 
     /**
+     * 最大店铺编号校验码
+     */
+    private long maxShopCode = 0L;
+
+    /**
      * 开始时间，默认为2018-01-01
      */
     private String startTimeString = "2018-01-01 00:00:00";
@@ -93,15 +92,11 @@ public class CardIdGenerator {
      */
     private long startTimeStamp = 0L;
 
-    public CardIdGenerator() {
-        this(1, 1);
+    public ShopCardIdGenerator() {
+        this(1);
     }
 
-    public CardIdGenerator(int machineId, int defaultSystem) {
-        if (defaultSystem < 1 || defaultSystem > 7) {
-            throw new IllegalArgumentException("The default system must be in [1, 7]");
-        }
-
+    public ShopCardIdGenerator(int machineId) {
         int maxMachineId = ~(-1 << machineBits);
         if (machineId > maxMachineId) {
             throw new IllegalArgumentException("Machine bits is " + machineBits
@@ -109,7 +104,6 @@ public class CardIdGenerator {
         }
 
         this.machineId = machineId;
-        this.defaultSystem = defaultSystem;
         init();
     }
 
@@ -122,16 +116,15 @@ public class CardIdGenerator {
      * @param validationBits  校验bit位数
      * @param machineId       机器编号
      * @param startTimeString 开始时间，默认为2016-01-01
-     * @param defaultSystem   默认系统编号
      */
-    public CardIdGenerator(int timeBits, int machineBits, int sequenceBits, int validationBits, int machineId,
-                           String startTimeString, int defaultSystem) {
+    public ShopCardIdGenerator(int timeBits, int machineBits, int sequenceBits, int validationBits, int machineId,
+                               String startTimeString) {
         if (timeBits <= 0 || machineBits <= 0 || sequenceBits <= 0 || validationBits <= 0) {
             throw new IllegalArgumentException("The bits should be larger than 0");
         }
-        if (timeBits + machineBits + sequenceBits + validationBits != 50) {
+        if (timeBits + machineBits + sequenceBits + validationBits != 49) {
             throw new IllegalArgumentException("The sum of timeBits and machineBits and sequenceBits " +
-                    "and validationBits should be 50");
+                    "and validationBits should be 49");
         }
 
         int maxMachineId = ~(-1 << machineBits);
@@ -140,11 +133,6 @@ public class CardIdGenerator {
                     + ", so the max machine id is " + maxMachineId);
         }
 
-        if (defaultSystem < 1 || defaultSystem > 7) {
-            throw new IllegalArgumentException("The default system must be in [1, 7]");
-        }
-
-        this.defaultSystem = defaultSystem;
         this.timeBits = timeBits;
         this.machineBits = machineBits;
         this.sequenceBits = sequenceBits;
@@ -154,25 +142,15 @@ public class CardIdGenerator {
         init();
     }
 
-
-    /**
-     * 生成16位卡号
-     *
-     * @return 16位卡号
-     */
-    public long generate() {
-        return generate(defaultSystem);
-    }
-
     /**
      * 根据给定的系统编号生成卡号
      *
-     * @param system 系统编号
+     * @param shopId 店铺编号
      * @return 16位卡号
      */
-    public synchronized long generate(long system) {
-        if (system < 1 || system > 7) {
-            throw new IllegalArgumentException("The system must be in [1, 7]");
+    public synchronized long generate(String shopId) {
+        if (null == shopId || shopId.length() == 0) {
+            throw new IllegalArgumentException("Shop id cannot be null");
         }
 
         long curStamp = getNewStamp();
@@ -183,13 +161,14 @@ public class CardIdGenerator {
         if (curStamp == lastStamp) {
             sequence = (sequence + 1) & maxSequence;
             if (sequence == 0L) {
-                curStamp = getNextSecond();
+                curStamp = getNextStamp();
             }
         } else {
             sequence = 0L;
         }
         lastStamp = curStamp;
-        long originId = system << systemOffset
+        long shopCode = getShopCode(shopId);
+        long originId = shopCode << shopOffset
                 | (curStamp - startTimeStamp) << timeOffset
                 | machineId << machineOffset
                 | sequence << sequenceOffset;
@@ -201,50 +180,64 @@ public class CardIdGenerator {
     /**
      * 校验卡号是否合法
      *
-     * @param id 卡号
+     * @param shopId 店铺编号
+     * @param id     卡号
      * @return boolean 合法返回true，反之false
      */
-    public boolean validate(long id) {
-        if (id > 9999999999999999L || id < 1000000000000000L) {
+    public boolean validate(String shopId, long id) {
+        if (!validateCode(id)) {
             return false;
         }
 
         String bitString = Long.toBinaryString(id);
         int bitLength = bitString.length();
-        String codeBitString = bitString.substring(bitLength - validationBits);
-        int validationCode = Integer.parseInt(codeBitString, 2);
-        long originId = id - validationCode;
-        if (validationCode != getValidationCode(originId)) {
-            return false;
-        }
 
-        Long timestamp = Long.parseLong(bitString.substring(bitLength - timeOffset - timeBits, bitLength - timeOffset), 2);
-        long currentStamp = System.currentTimeMillis() / 1000 - startTimeStamp;
-        long timeDelta = currentStamp - timestamp;
-        return timeDelta > -3600;
+        long shopCode = getShopCode(shopId);
+        String shopCodeBitString = bitString.substring(0, bitLength - shopOffset);
+        long parseShopCode = Long.parseLong(shopCodeBitString, 2);
+        return shopCode == parseShopCode;
     }
 
     /**
      * 解析卡号
      *
      * @param id 卡号
-     * @return 解析结果依次是系统编号（system）、时间戳、机器编码、序列号
+     * @return 解析结果依次是时间戳、机器编码、序列号
      */
     public Long[] parse(long id) {
-        if (!validate(id)) {
+        if (!validateCode(id)) {
             return null;
         }
 
         String bitString = Long.toBinaryString(id);
         int bitLength = bitString.length();
-        Long system = Long.parseLong(bitString.substring(0, bitLength - systemOffset), 2);
         Long timestamp = Long.parseLong(bitString.substring(bitLength - timeOffset - timeBits, bitLength - timeOffset),
                 2);
         Long machineId = Long.parseLong(bitString.substring(bitLength - machineOffset - machineBits,
                 bitLength - machineOffset), 2);
         Long sequence = Long.parseLong(bitString.substring(bitLength - sequenceOffset - sequenceBits,
                 bitLength - sequenceOffset), 2);
-        return new Long[]{system, timestamp, machineId, sequence};
+        return new Long[]{timestamp, machineId, sequence};
+    }
+
+    /**
+     * 将时间戳、机器编号、序号组合成卡号ID
+     *
+     * @param shopId    店铺ID
+     * @param timestamp 时间戳
+     * @param machineId 机器编号
+     * @param sequence  序号
+     * @return 卡号ID
+     */
+    protected long combine(String shopId, Long timestamp, Long machineId, Long sequence) {
+        long shopCode = getShopCode(shopId);
+        long originId = shopCode << shopOffset
+                | timestamp << timeOffset
+                | machineId << machineOffset
+                | sequence << sequenceOffset;
+
+        int validationCode = getValidationCode(originId);
+        return originId + validationCode;
     }
 
     /**
@@ -254,10 +247,39 @@ public class CardIdGenerator {
         sequenceOffset = validationBits;
         machineOffset = sequenceOffset + sequenceBits;
         timeOffset = machineOffset + machineBits;
-        systemOffset = timeOffset + timeBits;
+        shopOffset = timeOffset + timeBits;
         maxSequence = ~(-1L << sequenceBits);
-        startTimeStamp = getTimeStamp(startTimeString);
         maxCode = ~(-1 << validationBits);
+        startTimeStamp = getTimeStamp(startTimeString);
+        maxShopCode = 14L;
+    }
+
+    /**
+     * 校验除店铺编号外的所有字段
+     *
+     * @param id id
+     * @return boolean 合法返回true
+     */
+    private boolean validateCode(long id) {
+        if (id > 9999999999999999L || id < 1000000000000000L) {
+            return false;
+        }
+
+        String bitString = Long.toBinaryString(id);
+        int bitLength = bitString.length();
+
+        String codeBitString = bitString.substring(bitLength - validationBits);
+        int validationCode = Integer.parseInt(codeBitString, 2);
+        long originId = id - validationCode;
+        long parseValidationCode = getValidationCode(originId);
+        if (validationCode != parseValidationCode) {
+            return false;
+        }
+
+        Long timestamp = Long.parseLong(bitString.substring(bitLength - timeBits - timeOffset, bitLength - timeOffset), 2);
+        long currentStamp = System.currentTimeMillis() / 1000 - startTimeStamp;
+        long timeDelta = currentStamp - timestamp;
+        return timeDelta > -3600;
     }
 
     /**
@@ -275,7 +297,7 @@ public class CardIdGenerator {
         } catch (Exception e) {
             log.error("Cannot get time stamp string {}, the invalid date format is yyyy-MM-dd HH:mm:ss ,please check!",
                     dateStr);
-            return 1510329600L;
+            return 1509292800L;
         }
     }
 
@@ -293,7 +315,7 @@ public class CardIdGenerator {
      *
      * @return 时间戳（秒）
      */
-    private long getNextSecond() {
+    private long getNextStamp() {
         long second = getNewStamp();
         while (second <= lastStamp) {
             second = getNewStamp();
@@ -322,7 +344,34 @@ public class CardIdGenerator {
         for (int number : numbers) {
             validationCode += number;
         }
-        validationCode = validationCode * 7;
+        validationCode *= 7;
         return validationCode % maxCode;
+    }
+
+    /**
+     * 获取店铺编码
+     *
+     * @param shopId 店铺ID
+     * @return 店铺编码
+     */
+    private Long getShopCode(String shopId) {
+        long numberShopId = Long.parseLong(shopId, 16);
+        String strNumberShopId = String.valueOf(numberShopId);
+        int[] numbers = new int[strNumberShopId.length()];
+        for (int i = 0; i < strNumberShopId.length(); i++) {
+            numbers[i] = Character.getNumericValue(strNumberShopId.charAt(i));
+        }
+        for (int i = numbers.length - 1; i >= 0; i -= 2) {
+            numbers[i] <<= 1;
+            numbers[i] = numbers[i] / 10 + numbers[i] % 10;
+        }
+
+        int validationCode = 0;
+        for (int number : numbers) {
+            validationCode += number;
+        }
+        validationCode *= validationCode;
+        validationCode %= maxShopCode;
+        return validationCode < 2L ? validationCode + 2L : validationCode;
     }
 }

@@ -1,4 +1,4 @@
-package com.jinpei.id.common.algorithm;
+package com.jiangwei.id.common.algorithm;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 /**
  * ChaCha20算法
- * Created by liuzhaoming on 2018/1/30.
+ * Created by jiangwei on 2018/1/30.
  */
 public class ChaCha20 {
     /*

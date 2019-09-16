@@ -1,4 +1,4 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,16 +7,16 @@ import java.util.Random;
 
 /**
  * 单元测试用例
- * Created by liuzhaoming on 2017/11/22.
+ * Created by jiangwei on 2018/07/11.
  */
-public class CardIdGeneratorTest {
+public class ShortCardIdGeneratorTest {
 
-    private CardIdGenerator cardIdGenerator = new CardIdGenerator();
+    private ShortCardIdGenerator cardIdGenerator = new ShortCardIdGenerator();
 
     @Test
     public void generate() throws Exception {
         Long id = cardIdGenerator.generate();
-        Assert.assertEquals(16, String.valueOf(id).length());
+        Assert.assertEquals(13, String.valueOf(id).length());
     }
 
     @Test
@@ -31,9 +31,8 @@ public class CardIdGeneratorTest {
         Long id = cardIdGenerator.generate();
         Long[] results = cardIdGenerator.parse(id);
         Assert.assertTrue(cardIdGenerator.validate(id));
-        Assert.assertTrue(results[0] == 1L);
-        Assert.assertTrue(results[2] == 1L);
-        Assert.assertTrue(results[3] == 0L);
+        Assert.assertTrue(results[1] == 1L);
+        Assert.assertTrue(results[2] < 20L);
     }
 
     @Test

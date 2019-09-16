@@ -1,4 +1,4 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,7 +7,7 @@ import java.util.Random;
 
 /**
  * 店铺卡号生成器
- * Created by liuzhaoming on 2017/11/23.
+ * Created by jiangwei on 2017/11/23.
  */
 public class ShopCardIdGeneratorTest {
 

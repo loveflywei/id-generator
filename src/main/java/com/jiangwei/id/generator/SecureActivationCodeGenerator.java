@@ -1,7 +1,7 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
-import com.jinpei.id.common.algorithm.ChaCha20;
-import com.jinpei.id.common.algorithm.Hmac;
+import com.jiangwei.id.common.algorithm.ChaCha20;
+import com.jiangwei.id.common.algorithm.Hmac;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +35,7 @@ import java.util.List;
  * 步骤9得到的结果进行base32编码得到一位32进制数
  * <p>
  * 将步骤11和步骤10得到的结果拼在一起，得到16位的激活码
- * Created by liuzhaoming on 2018/1/30.
+ * Created by jiangwei on 2018/1/30.
  */
 public class SecureActivationCodeGenerator {
 

@@ -1,4 +1,4 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,7 +11,7 @@ import java.util.TimeZone;
  * 生成ID，采用snowflake算法，64bit整数，1秒可以生成800万个ID
  * 0-41bit毫秒时间戳-10bit机器ID-12bit序列化
  * 42bit的毫秒时间戳，2000年算起可以支持该算法使用到2068年，10bit的工作机器id可以支持1024台机器，12序列号支持1毫秒产生4096个自增序列id
- * Created by liuzhaoming on 2017/11/23.
+ * Created by jiangwei on 2017/11/23.
  */
 @Slf4j
 public class LongIdGenerator {

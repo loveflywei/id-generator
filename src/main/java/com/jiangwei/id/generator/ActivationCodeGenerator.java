@@ -1,4 +1,4 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,7 +8,7 @@ import java.util.TimeZone;
 
 /**
  * 激活码生成器
- * Created by liuzhaoming on 2018/1/20.
+ * Created by jiangwei on 2018/1/20.
  */
 @Slf4j
 public class ActivationCodeGenerator {

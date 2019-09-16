@@ -1,21 +1,23 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SecureActivationCodeGeneratorTest {
+import java.util.Random;
+
+public class ActivationCodeGeneratorTest {
 
     private ShopCardIdGenerator cardIdGenerator = new ShopCardIdGenerator();
 
-    private SecureActivationCodeGenerator codeGenerator = createCodeGenerator();
+    private ActivationCodeGenerator codeGenerator = new ActivationCodeGenerator();
 
     @Test
     public void generate() {
         String shopId = "A1111";
         for (int i = 0; i < 100; i++) {
             Long cardId = cardIdGenerator.generate(shopId);
-            String code = codeGenerator.generate(shopId, cardId, i);
-            Assert.assertEquals(16, code.length());
+            String code = codeGenerator.generate(shopId, cardId);
+            Assert.assertEquals(12, code.length());
             System.out.println(code);
         }
     }
@@ -24,7 +26,7 @@ public class SecureActivationCodeGeneratorTest {
     public void validate() {
         String shopId = "A1111";
         Long cardId = cardIdGenerator.generate(shopId);
-        String code = codeGenerator.generate(shopId, cardId, 999);
+        String code = codeGenerator.generate(shopId, cardId);
 
         Assert.assertTrue(codeGenerator.validate(shopId, code));
         Assert.assertFalse(codeGenerator.validate("A111", code));
@@ -44,13 +46,23 @@ public class SecureActivationCodeGeneratorTest {
     public void validateCardId() {
         String shopId = "A1111";
         Long cardId = cardIdGenerator.generate(shopId);
-        String code = codeGenerator.generate(shopId, cardId, 889);
+        String code = codeGenerator.generate(shopId, cardId);
         Assert.assertFalse(codeGenerator.validateCardId(code, cardId + 1));
         Assert.assertFalse(codeGenerator.validateCardId(code, cardId - 1));
     }
 
-    private SecureActivationCodeGenerator createCodeGenerator() {
-        String alphabets = SecureActivationCodeGenerator.generateAlphabets();
-        return new SecureActivationCodeGenerator("abc1234567845#$&*(fYYTYTeefg~!@)", "^^jinpeicomp", 99999, alphabets);
+    @Test
+    public void testBatch() {
+        String shopId = "A1111";
+        char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+        Random random = new Random();
+        for (int i = 0; i < 100; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < 12; j++) {
+                int index = random.nextInt(26);
+                sb.append(alphabet[index]);
+            }
+            Assert.assertFalse(codeGenerator.validate(shopId, sb.toString()));
+        }
     }
 }

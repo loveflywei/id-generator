@@ -1,11 +1,11 @@
-package com.jinpei.id.generator;
+package com.jiangwei.id.generator;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Long 类型ID生成器
- * Created by liuzhaoming on 2017/11/23.
+ * Created by jiangwei on 2017/11/23.
  */
 public class LongIdGeneratorTest {
 
